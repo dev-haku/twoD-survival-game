@@ -1,27 +1,42 @@
-# twoD-survival-game
+# **twoD-survival-game**
 
 [日本語](./docs/README.ja.md)
 
-## About
+## **About**
 This project is a 2D survival game developed to learn programming.
 
-## Play Locally
+## **Play Locally**
 
-### Install Python 3.13.9
+### **Install Python 3.13.9**
 
-### Clone this repository
-
+### **Clone this repository**
 ```bash
 git clone https://github.com/dev-haku/twoD-survivalgame.git
+cd twoD-survivalgame
 ```
 
-### Install dependencies
+### **Create a virtual environment**
+
+
+**Windows**
 ```bash
-py -3.13 -m pip install -r requirements.txt
+py -3.13 -m venv .venv
+.venv\Scripts\activate
 ```
 
-### Start the game
+**macOS / Linux**
+```bash
+python3.13 -m venv .venv
+source .venv/bin/activate
+```
+
+### **Install dependencies**
+```bash
+python -m pip install -r requirements.txt
+```
+
+### **Start the game**
 ```bash
 cd game
-py -3.13 main.py
+python main.py
 ```
