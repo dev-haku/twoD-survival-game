@@ -1,8 +1,0 @@
-{
-    "world_seed" : "",
-    "world_offset" : "",
-    "player" : {
-        "health" : 0,
-        "inventory" : 0
-    }
-}
