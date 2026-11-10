@@ -13,9 +13,9 @@ class ThingID(StrEnum):
     ROCK = "rock"
     TORCH = "torch"
     CHEST = "chest"
-    SLASH = "slash"
     FIRE = "fire"
 
+    SLASH_EFFECT = "slash_effect"
     DAMAGE_EFFECT = "damage_effect"
 
     APPLE = "apple"

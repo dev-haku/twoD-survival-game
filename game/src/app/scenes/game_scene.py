@@ -1,10 +1,16 @@
 import pygame
 
-from src.app.thing_defs import THING_DEFS, ThingID
-
 from src.package import Scene
-from ..gameobjects.world import World
-from src.app.gameobjects.ui import PositionDisplay, ChunkPositionDisplay
+from src.app.gameobjects.player import Player
+from src.app.gameobjects.world import World
+from src.app.gameobjects.ui import (
+    PositionDisplay,
+    ChunkPositionDisplay,
+    HealthGauge,
+    Hotbar
+)
+
+from src.app.defs.thing_registry import THING_DEFS, ThingRegistry
 
 
 class GameScene(Scene):
@@ -12,11 +18,22 @@ class GameScene(Scene):
     def __init__(self, engine):
         super().__init__(engine)
 
-        self.surface_cache: dict[str, pygame.Surface] = {}
+        self.thing_registry = ThingRegistry(THING_DEFS)
 
         camera = self.get_gameobject("Camera")
         camera.anchor = (0.5,0.5)
         camera.zoom = 1
+
+        
+        self.add_gameobject(
+            gameobject_class= Player, 
+            position= (0,0),
+            layer= 2
+        )
+
+        self.add_gameobject(
+            gameobject_class= World,
+        )
 
         self.add_gameobject(
             gameobject_class= PositionDisplay, 
@@ -33,23 +50,17 @@ class GameScene(Scene):
             gameobject_class= ChunkPositionDisplay, 
             position= (0.5,0.2), 
             scale= (0.5,0.5), 
-            layer=1, 
-            text=None,
+            layer= 1, 
+            text= None,
             size= 100, 
             color= (255,255,255), 
             init_active= True
         )
-        
-        self.add_gameobject(World)
 
-    def get_surface(self, ID: ThingID):
-        surf = self.surface_cache.get(ID, None)
-        if surf is None:
-            thing_def = THING_DEFS.get(ID)
-            entity_def = thing_def.entity_def
-            sprite_surface = entity_def.sprite.build_surface()
-            gameobject_scale = entity_def.gameobject_class.SCALE
-            surf = pygame.transform.scale(sprite_surface, (sprite_surface.get_width() * gameobject_scale, sprite_surface.get_height() * gameobject_scale))
-            self.surface_cache[ID] = surf
-    
-        return surf
+        self.add_gameobject(
+            gameobject_class= Hotbar,
+            position= (0.5,0.9),
+            scale= (3,3),
+            layer= 1
+        )
+

@@ -1,36 +1,39 @@
-import pygame
+from __future__ import annotations
 
-from src.app.thing_defs import ThingID, THING_DEFS,  TILE_SIZE
 from src.package import Gameobject
 from src.app.utils import noise, hash2d
 from src.app.gameobjects.player import Player
 from src.app.gameobjects.tile import Tile
+from src.app.gameobjects.pickup_item import PickupItem
+
+from src.app.defs.thing_id import ThingID
+from src.app.defs.thing_registry import TILE_SIZE
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from src.app.scenes.game_scene import GameScene
 
     
 class World(Gameobject):
 
-    CHUNK_SIZE: int = 4
+    CHUNK_SIZE: int = 8
     
     TILE_SCALED_SIZE = TILE_SIZE * Tile.SCALE
 
-    def __init__(self, engine, scene, args):
-        super().__init__(engine, scene, args)
+    def __init__(self, engine, scene, kwargs):
+        super().__init__(engine, scene, kwargs)
+
+        self.scene :GameScene
         
         self.cached_player_position: tuple[float,float] = (0,0)
 
-        self.load_range = 3
+        self.load_range = 2
 
         self.seed=12345678
 
         self.existing_chunks = {}
 
-        player = self.add_child(
-            gameobject_class= Player, 
-            position= (0,0),
-            layer= 2
-        )
-  
-        self.player_transform = player.get_component("Transform")
+        self.player_transform = self.scene.get_gameobject("Player").get_component("Transform")
 
         cp = self._get_current_player_chunk_position()
 
@@ -44,15 +47,23 @@ class World(Gameobject):
             self._generate_chunk(1, chunk_pos)
 
     def generate_entity(self, thing_id, pos, layer) -> Gameobject:
-        entity_def = THING_DEFS.get(thing_id).entity_def
+        entity_def = self.scene.thing_registry.get_entity_def(thing_id)
         gameobject_class = entity_def.gameobject_class
         return self.add_child(
             gameobject_class= gameobject_class, 
-            thing_id= thing_id, 
             position= pos, 
             layer= layer,
+            thing_id= thing_id, 
             entity_def= entity_def,
-            surface= self.scene.get_surface(thing_id)
+        ) 
+
+    def generate_pickup_item(self, thing_id, pos) -> Gameobject:
+        return self.add_child(
+            gameobject_class= PickupItem, 
+            position= pos, 
+            layer= 1,
+            thing_id= thing_id, 
+            item_def= self.scene.thing_registry.get_item_def(thing_id),
         ) 
 
     def update(self):
@@ -70,11 +81,9 @@ class World(Gameobject):
 
             for chunk_pos in set(surrounding_chunk_positions) - set(self.existing_chunks):
                 self._generate_chunk(1, chunk_pos)
-                break
                     
             for chunk_pos in set(self.existing_chunks) - set(surrounding_chunk_positions):
                 self._destroy_chunk(chunk_pos)
-                break
                 
             self.cached_player_position = player_pos
 
@@ -147,7 +156,7 @@ class World(Gameobject):
                             A = ThingID.GRASS_TILE
 
                 if A is not None:
-                    generated_entities.append(self.generate_entity(A, pos, 1))
+                    generated_entities.append(self.generate_entity(A, pos, 0))
                 if B is not None:
                     generated_entities.append(self.generate_entity(B, pos, 3))
 
